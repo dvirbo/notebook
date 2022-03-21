@@ -14,30 +14,28 @@ namespace ariel
     class Notebook
     {
 
-        unsigned int rows, cols; 
-        std::vector< std::vector<char> > notebook;
-
+        unsigned int rows, cols;
+        vector<vector<char>> notebook;
 
     public:
         // Constructors
         Notebook();
-        Notebook(unsigned int rows, unsigned int cols);
+        Notebook(int rows, int cols);
 
         // Destructor
         ~Notebook();
 
-        void write(unsigned int page, unsigned int row, unsigned int col, Direction dir, string data);
-        string read(unsigned int page, unsigned int row, unsigned int col, Direction dir, unsigned int len);
-        void erase(unsigned int page, unsigned int row, unsigned int col, Direction dir, unsigned int len);
-        void show(unsigned int);
-        bool maxSizeLine(int);
+        void write(int page, int row, int col, Direction dir, string const &data);
+        string read(int page, int row, int col, Direction dir, int len);
+        void erase(int page, int row, int col, Direction dir, int len);
+        void show(int);
+        bool colPos(int);
         bool pagePos(int);
         bool linePos(int);
-
-
+        bool lenpos(int);
 
         // return the number of rows and columns of this Notebook
-            unsigned int get_rows() const;
-            unsigned int get_cols() const;
+        unsigned int get_rows() const;
+        unsigned int get_cols() const;
     };
 }

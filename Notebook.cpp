@@ -10,23 +10,37 @@ using namespace std;
 
 namespace ariel
 {
-    // Default and minimal size of the Notebook
-    const int DEFAULT_SIZE = 1;
+    const int DEFAULT_SIZE = 100;
     const int MAX_LINE_SIZE = 100;
     const char EMPTY_SPACE = '_';
     const int MIN_SIZE = 1;
 
     // Default constructor
-    // Notebook::Notebook(){
-    //     this->rows = DEFAULT_SIZE;
-    //     this->cols = DEFAULT_SIZE;
-    // }
+    Notebook::Notebook()
+    {
+        //for( auto it = notebook.begin(); it != v.end(); ++it )
+
+        this->rows = DEFAULT_SIZE;
+        this->cols = DEFAULT_SIZE;
+        this->notebook.resize(DEFAULT_SIZE);
+        for (unsigned int i = 0; i < this->notebook.size(); i++)
+        {
+            notebook[i].resize(DEFAULT_SIZE, EMPTY_SPACE);
+        }
+    }
 
     // constructor by Initialization list:
-    Notebook ::Notebook() : rows(DEFAULT_SIZE), cols(DEFAULT_SIZE) {}
+    // Notebook ::Notebook() : rows(DEFAULT_SIZE), cols(DEFAULT_SIZE) {
+    //     this->notebook.resize(rows);
+    //         for (int i = 0; i < this->rows; i++)
+    //     {
+    //         notebook[i].resize(cols, EMPTY_SPACE);
+    //     }
+
+    // }
 
     // Constructor
-    Notebook::Notebook(unsigned int rows, unsigned int cols)
+    Notebook::Notebook(int rows, int cols)
     {
 
         if (rows < MIN_SIZE)
@@ -39,48 +53,85 @@ namespace ariel
             throw invalid_argument("Invalid input: " + to_string(cols));
         }
 
-        this->rows = rows;
-        this->cols = cols;
+        this->rows = (unsigned int)rows;
+        this->cols = (unsigned int)cols;
+        this->notebook.resize(this->rows);
+        for (unsigned int  i = 0; i < this->rows; i++)
+        {
+            notebook[i].resize(this->cols, EMPTY_SPACE);
+        }
     }
     // Destructor
     Notebook::~Notebook() {}
-    void write(unsigned int page, unsigned int row, unsigned int col, Direction dir, string data) {}
-    string read(unsigned int page, unsigned int row, unsigned int col, Direction dir, unsigned int len)
+    unsigned int Notebook::get_rows() const
     {
+        return this->rows;
+    }
+
+    unsigned int Notebook::get_cols() const
+    {
+        return this->cols;
+    }
+
+    void Notebook::write(int page, int row, int col, Direction dir, string const &data)
+    {
+        if (colPos(col) && pagePos(page) && linePos(row))
+        {
+        }
+    }
+    string Notebook::read(int page, int row, int col, Direction dir, int len)
+    {
+        if (colPos(col) && pagePos(page) && linePos(row) && lenpos(len))
+        {
+        }
         return " ";
     }
-    void erase(unsigned int page, unsigned int row, unsigned int col, Direction dir, unsigned int len) {}
-    void show(unsigned int page) {}
-
-/**
- * The next punctions check the input validation
- * */
-    bool maxSizeLine(int pos)
+    void Notebook::erase(int page, int row, int col, Direction dir, int len)
     {
-        if (pos < 0 || pos > 100)
+        if (colPos(col) && pagePos(page) && linePos(row) && lenpos(len))
         {
-            throw runtime_error("the length of the line must be less than 100");
+            
+        }
+    }
+    void Notebook::show(int page) {}
+
+    /**
+     * The next punctions check the input validation
+     * */
+    bool Notebook::colPos(int pos)
+    {
+        if (pos < 0 || pos > DEFAULT_SIZE)
+        {
+            throw invalid_argument("the length of the line must be less than 100");
             return false;
         }
         return true;
     }
-    bool pagePos(int pos)
+    bool Notebook::pagePos(int pos)
     {
         if (pos < 0)
         {
-            throw runtime_error("page number must be positive");
+            throw invalid_argument("page number must be positive");
             return false;
         }
         return true;
     }
-    bool linePos(int pos)
+    bool Notebook::linePos(int pos)
     {
         if (pos < 0)
         {
-            throw runtime_error("line number must be positive");
+            throw invalid_argument("line number must be positive");
             return false;
         }
         return true;
     }
-
+    bool Notebook::lenpos(int pos)
+    {
+        if (pos < 0)
+        {
+            throw invalid_argument("line length must be positive");
+            return false;
+        }
+        return true;
+    }
 }
