@@ -8,6 +8,7 @@ using ariel::Direction;
 
 using namespace std;
 
+
 namespace ariel
 {
     const int DEFAULT_SIZE = 100;
@@ -18,7 +19,7 @@ namespace ariel
     // Default constructor
     Notebook::Notebook()
     {
-        //for( auto it = notebook.begin(); it != v.end(); ++it )
+        // for( auto it = notebook.begin(); it != v.end(); ++it )
 
         this->rows = DEFAULT_SIZE;
         this->cols = DEFAULT_SIZE;
@@ -56,7 +57,7 @@ namespace ariel
         this->rows = (unsigned int)rows;
         this->cols = (unsigned int)cols;
         this->notebook.resize(this->rows);
-        for (unsigned int  i = 0; i < this->rows; i++)
+        for (unsigned int i = 0; i < this->rows; i++)
         {
             notebook[i].resize(this->cols, EMPTY_SPACE);
         }
@@ -79,18 +80,31 @@ namespace ariel
         {
         }
     }
-    string Notebook::read(int page, int row, int col, Direction dir, int len)
+    string Notebook::read(int page, int row, int col, Direction dir, int len) 
     {
         if (colPos(col) && pagePos(page) && linePos(row) && lenpos(len))
         {
+            if (len + col < MAX_LINE_SIZE)
+            {
+            }
+            else{
+                throw invalid_argument(" you can't go down line when you read data");
+            }
         }
         return " ";
     }
-    void Notebook::erase(int page, int row, int col, Direction dir, int len)
+
+    void Notebook::erase(int page, int row, int col, Direction dir, int len) 
     {
+ 
         if (colPos(col) && pagePos(page) && linePos(row) && lenpos(len))
         {
-            
+            if (len + col < MAX_LINE_SIZE)
+            {
+            }
+            else{
+                throw invalid_argument(" you can't go down line when you erase data");
+            }
         }
     }
     void Notebook::show(int page) {}
@@ -129,7 +143,12 @@ namespace ariel
     {
         if (pos < 0)
         {
-            throw invalid_argument("line length must be positive");
+            throw invalid_argument("the length of the string that read must be positive");
+            return false;
+        }
+        if (pos > MAX_LINE_SIZE)
+        {
+            throw invalid_argument("the length of the string that read must be less than 100");
             return false;
         }
         return true;

@@ -56,3 +56,11 @@ TEST_CASE("LINE POS BIGGER THAN 100")
     CHECK_THROWS(nb1.read(50, 50, 101, Direction::Horizontal, 5));
     CHECK_THROWS(nb1.erase(50, 50, 101, Direction::Horizontal, 5));
 }
+
+TEST_CASE("READ MORE THAN 100 CHARS"){
+    Notebook nb1;
+    CHECK_NOTHROW(nb1.write(50, 50, 51, Direction::Horizontal, "abcdefggggg"));
+    CHECK_THROWS(nb1.read(50, 50, 101, Direction::Horizontal, 101));
+    CHECK_THROWS(nb1.erase(50, 50, 101, Direction::Horizontal, 101));
+
+}
