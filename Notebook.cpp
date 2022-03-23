@@ -107,10 +107,11 @@ namespace ariel
             }
         }
     }
-    void Notebook::show(int page) {}
+    void Notebook::show(int page) {
+    }
 
     /**
-     * The next punctions check the input validation
+     * The next punctions check the input validation:
      * */
     bool Notebook::colPos(int pos)
     {
@@ -130,7 +131,7 @@ namespace ariel
         }
         return true;
     }
-    bool Notebook::linePos(int pos)
+    bool Notebook:: linePos(int pos)
     {
         if (pos < 0)
         {
