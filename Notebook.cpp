@@ -4,23 +4,23 @@
 #include <stdexcept>
 #include <iostream>
 #include <string>
+#include <cstring>
+
 using ariel::Direction;
 
 using namespace std;
-
 
 namespace ariel
 {
     const int DEFAULT_SIZE = 100;
     const int MAX_LINE_SIZE = 100;
     const char EMPTY_SPACE = '_';
+    const char DEL = '~';
     const int MIN_SIZE = 1;
 
     // Default constructor
     Notebook::Notebook()
     {
-        // for( auto it = notebook.begin(); it != v.end(); ++it )
-
         this->rows = DEFAULT_SIZE;
         this->cols = DEFAULT_SIZE;
         this->notebook.resize(DEFAULT_SIZE);
@@ -76,38 +76,106 @@ namespace ariel
 
     void Notebook::write(int page, int row, int col, Direction dir, string const &data)
     {
-        if (colPos(col) && pagePos(page) && linePos(row))
+        int len = data.length();
+        if (colPos(col) && pagePos(page) && linePos(row) && legal(page, row, col, dir, len))
         {
+            unsigned int p = (unsigned int)page;
+            unsigned int r = (unsigned int)row;
+            unsigned int c = (unsigned int)col;
+
+            unsigned int pos = 100 * (r - 1) + c;
+            unsigned int j = 0;
+            if (dir == Direction::Horizontal)
+            {
+                while (j < len)
+                {
+                    Notebook::notebook[p][pos++] = data[j++];
+                }
+            }
+            else
+            {
+                while (j < len)
+                {
+                    Notebook::notebook[p][pos += 100] = data[j++];
+                }
+            }
         }
     }
-    string Notebook::read(int page, int row, int col, Direction dir, int len) 
+    string Notebook::read(int page, int row, int col, Direction dir, int len)
     {
+        std::string ans;
         if (colPos(col) && pagePos(page) && linePos(row) && lenpos(len))
         {
             if (len + col < MAX_LINE_SIZE)
             {
+                unsigned int p = (unsigned int)page;
+                unsigned int r = (unsigned int)row;
+                unsigned int c = (unsigned int)col;
+                unsigned int j = 0;
+                unsigned int pos = 100 * (r - 1) + c;
+
+                if (dir == Direction::Horizontal)
+                {
+                    while (j++ < len)
+                    {
+                        ans = Notebook::notebook[p][pos++];
+                    }
+                    return ans;
+                }
+                else
+                {
+                    while (j++ < len)
+                    {
+                        ans = Notebook::notebook[p][pos += 100];
+                    }
+                    return ans;
+                }
             }
-            else{
+            else
+            {
                 throw invalid_argument(" you can't go down line when you read data");
             }
         }
-        return " ";
+        return "";
     }
 
-    void Notebook::erase(int page, int row, int col, Direction dir, int len) 
+    void Notebook::erase(int page, int row, int col, Direction dir, int len)
     {
- 
+
         if (colPos(col) && pagePos(page) && linePos(row) && lenpos(len))
         {
             if (len + col < MAX_LINE_SIZE)
             {
+                unsigned int p = (unsigned int)page;
+                unsigned int r = (unsigned int)row;
+                unsigned int c = (unsigned int)col;
+                unsigned int j = 0;
+                unsigned int l = (unsigned int)len;
+                unsigned int pos = 100 * (r - 1) + c;
+
+                if (dir == Direction::Horizontal)
+                {
+                    while (j++ < l)
+                    {
+                        Notebook::notebook[p][pos++] = DEL;
+                    }
+                }
+                else
+                {
+                    while (j++ < l)
+                    {
+                        Notebook::notebook[p][pos += 100] = DEL;
+                    }
+                }
             }
-            else{
+            else
+            {
                 throw invalid_argument(" you can't go down line when you erase data");
             }
         }
     }
-    void Notebook::show(int page) {
+    void Notebook::show(int page)
+    {
     }
 
     /**
@@ -131,7 +199,7 @@ namespace ariel
         }
         return true;
     }
-    bool Notebook:: linePos(int pos)
+    bool Notebook::linePos(int pos)
     {
         if (pos < 0)
         {
@@ -154,4 +222,49 @@ namespace ariel
         }
         return true;
     }
+    /**
+     * this method check if we can write in the places that recuired-
+     * if there is datathat not _ trow false
+     *
+     * */
+    bool Notebook::legal(int page, int row, int col, Direction dir, int len)
+    {
+        unsigned int p = (unsigned int)page;
+        unsigned int r = (unsigned int)row;
+        unsigned int c = (unsigned int)col;
+        unsigned int l = (unsigned int)len;
+        unsigned int pos = 100 * (r - 1) + c;
+        unsigned int i;
+        if (dir == Direction::Horizontal)
+        {
+            for (i = pos; i < pos + l; i++)
+            {
+                if (Notebook::notebook[p][i] != EMPTY_SPACE)
+                {
+                    throw invalid_argument("you can't write to place that already writhen or deleted");
+                    return false;
+                }
+            }
+            return true;
+        }
+        else
+        {
+            for (i = pos; i < pos + 100 * (l - 1); i += 100)
+            {
+                if (Notebook::notebook[p][i] != EMPTY_SPACE)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
 }
+
+//     for (int i = 0; i < vec.size(); i++) {
+//         for (int j = 0; j < vec[i].size(); j++)
+//             cout << vec[i][j] << " ";
+//         cout << endl;
+//     }
+//     return 0;
+// }
