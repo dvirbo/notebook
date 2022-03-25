@@ -24,16 +24,16 @@ namespace ariel
 
         // Destructor
         ~Notebook();
-
-         void write(int page, int row, int col, Direction dir, string const &data);
-         string read(int page, int row, int col, Direction dir, int len);
-         void erase(int page, int row, int col, Direction dir, int len);
-        static void show(int);
+        void resize_Notebook(int page, int row, int col, Direction dir, unsigned int len);
+        void write(int page, int row, int col, Direction dir, string const &data);
+        string read(int page, int row, int col, Direction dir, int len);
+        void erase(int page, int row, int col, Direction dir, int len);
+        void show(int);
         static bool colPos(int);
         static bool pagePos(int);
         static bool linePos(int);
         static bool lenpos(int);
-        bool legal(int page,int row, int col, Direction dir,int len);
+        bool legal(int page, int row, int col, Direction dir, int len);
 
         // return the number of rows and columns of this Notebook
         unsigned int get_rows() const;

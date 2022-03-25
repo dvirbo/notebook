@@ -9,22 +9,23 @@
 using ariel::Direction;
 
 using namespace std;
+const int DEFAULT_SIZE = 100;
+const int MAX_LINE_SIZE = 100;
+const char EMPTY_SPACE = '_';
+const char DEL = '~';
+const int MIN_SIZE = 1;
+const int MARGIN = 0;
 
 namespace ariel
 {
-    const int DEFAULT_SIZE = 100;
-    const int MAX_LINE_SIZE = 100;
-    const char EMPTY_SPACE = '_';
-    const char DEL = '~';
-    const int MIN_SIZE = 1;
 
     // Default constructor
     Notebook::Notebook()
     {
         this->rows = DEFAULT_SIZE;
         this->cols = DEFAULT_SIZE;
-        this->notebook.resize(DEFAULT_SIZE);
-        for (unsigned int i = 0; i < this->notebook.size(); i++)
+        this->notebook.resize(DEFAULT_SIZE); // we create 100 pages
+        for (unsigned int i = 0; i < DEFAULT_SIZE; i++)
         {
             notebook[i].resize(DEFAULT_SIZE, EMPTY_SPACE);
         }
@@ -73,28 +74,62 @@ namespace ariel
     {
         return this->cols;
     }
+    void Notebook::resize_Notebook(int page, int row, int col, Direction dir, unsigned int len)
+    {
+
+        // At what index message will end for horizontal and vertical message respectively
+        unsigned int p = (unsigned int)page;
+        unsigned int r = (unsigned int)row;
+        unsigned int c = (unsigned int)col;
+        unsigned int l = (unsigned int)len;
+        unsigned int pos = 100 * (r - 1) + c;
+        unsigned int pageSize;
+        try
+        {
+            pageSize = Notebook::notebook[p].size();
+        }
+        catch (const std::exception &e)
+        {
+             notebook.resize(p);
+             pageSize = Notebook::notebook[p].size();
+        }
+        if (pageSize < pos)
+        {
+            if (dir == Direction::Horizontal)
+            {
+                notebook[p].resize(pageSize + 100, EMPTY_SPACE);
+            }
+            else // Direction::Vertical
+            {
+                notebook[p].resize(pageSize + 100 * l, EMPTY_SPACE);
+            }
+        }
+    }
 
     void Notebook::write(int page, int row, int col, Direction dir, string const &data)
     {
-        int len = data.length();
-        if (colPos(col) && pagePos(page) && linePos(row) && legal(page, row, col, dir, len))
+
+        if (colPos(col) && pagePos(page) && linePos(row)) //&& legal(page, row, col, dir, len)
         {
             unsigned int p = (unsigned int)page;
             unsigned int r = (unsigned int)row;
             unsigned int c = (unsigned int)col;
-
             unsigned int pos = 100 * (r - 1) + c;
             unsigned int j = 0;
+            unsigned int len = data.size();
+
+            // // Resizing board, if necessary
+            Notebook::resize_Notebook(page, row, col, dir, len);
             if (dir == Direction::Horizontal)
             {
-                while (j < len)
+                while (j < len - 1)
                 {
                     Notebook::notebook[p][pos++] = data[j++];
                 }
             }
             else
             {
-                while (j < len)
+                while (j < len - 1)
                 {
                     Notebook::notebook[p][pos += 100] = data[j++];
                 }
@@ -104,78 +139,100 @@ namespace ariel
     string Notebook::read(int page, int row, int col, Direction dir, int len)
     {
         std::string ans;
+
+        if (len + col > MAX_LINE_SIZE)
+        {
+            throw invalid_argument(" you can't go down line when you read data");
+            return "";
+        }
+
         if (colPos(col) && pagePos(page) && linePos(row) && lenpos(len))
         {
-            if (len + col < MAX_LINE_SIZE)
-            {
-                unsigned int p = (unsigned int)page;
-                unsigned int r = (unsigned int)row;
-                unsigned int c = (unsigned int)col;
-                unsigned int j = 0;
-                unsigned int pos = 100 * (r - 1) + c;
 
-                if (dir == Direction::Horizontal)
+            unsigned int p = (unsigned int)page;
+            unsigned int r = (unsigned int)row;
+            unsigned int c = (unsigned int)col;
+            unsigned int j = 0;
+            unsigned int pos = 100 * (r - 1) + c;
+            unsigned int l = (unsigned int)len;
+
+            if (dir == Direction::Horizontal)
+            {
+                while (j++ < l - 1)
                 {
-                    while (j++ < len)
-                    {
-                        ans = Notebook::notebook[p][pos++];
-                    }
-                    return ans;
+                    ans = Notebook::notebook[p][pos++];
                 }
-                else
-                {
-                    while (j++ < len)
-                    {
-                        ans = Notebook::notebook[p][pos += 100];
-                    }
-                    return ans;
-                }
+                return ans;
             }
             else
             {
-                throw invalid_argument(" you can't go down line when you read data");
+                while (j++ < l - 1)
+                {
+                    ans = Notebook::notebook[p][pos += 100];
+                }
+                return ans;
             }
         }
-        return "";
+        else
+        {
+            return "";
+        }
     }
 
     void Notebook::erase(int page, int row, int col, Direction dir, int len)
     {
 
+        if (len + col > MAX_LINE_SIZE)
+        {
+            throw invalid_argument(" you can't go down line when you erase data");
+        }
         if (colPos(col) && pagePos(page) && linePos(row) && lenpos(len))
         {
-            if (len + col < MAX_LINE_SIZE)
-            {
-                unsigned int p = (unsigned int)page;
-                unsigned int r = (unsigned int)row;
-                unsigned int c = (unsigned int)col;
-                unsigned int j = 0;
-                unsigned int l = (unsigned int)len;
-                unsigned int pos = 100 * (r - 1) + c;
 
-                if (dir == Direction::Horizontal)
+            unsigned int p = (unsigned int)page;
+            unsigned int r = (unsigned int)row;
+            unsigned int c = (unsigned int)col;
+            unsigned int j = 0;
+            unsigned int l = (unsigned int)len;
+            unsigned int pos = 100 * (r - 1) + c;
+
+            if (dir == Direction::Horizontal)
+            {
+                while (j++ < l)
                 {
-                    while (j++ < l)
-                    {
-                        Notebook::notebook[p][pos++] = DEL;
-                    }
-                }
-                else
-                {
-                    while (j++ < l)
-                    {
-                        Notebook::notebook[p][pos += 100] = DEL;
-                    }
+                    Notebook::notebook[p][pos++] = DEL;
                 }
             }
             else
             {
-                throw invalid_argument(" you can't go down line when you erase data");
+                while (j++ < l)
+                {
+                    Notebook::notebook[p][pos += 100] = DEL;
+                }
             }
         }
     }
     void Notebook::show(int page)
     {
+        try
+        {
+            unsigned int p = (unsigned int)page;
+            unsigned int pageSize = Notebook::notebook[p].size();
+            unsigned int count = 0;
+            while (pageSize--)
+            {
+                if (count % 100)
+                {
+                    cout << endl;
+                }
+                cout << Notebook::notebook[p][count++];
+            }
+            cout << endl;
+        }
+        catch (const std::exception &e)
+        {
+            cout << e.what() << endl;
+        }
     }
 
     /**
@@ -260,11 +317,3 @@ namespace ariel
         }
     }
 }
-
-//     for (int i = 0; i < vec.size(); i++) {
-//         for (int j = 0; j < vec[i].size(); j++)
-//             cout << vec[i][j] << " ";
-//         cout << endl;
-//     }
-//     return 0;
-// }
