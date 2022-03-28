@@ -14,7 +14,7 @@ namespace ariel
   private:
   
     unordered_map<string, vector<char>> note;
-  
+
   public:
     void write(int page, int row, int col, Direction dir, string const &data);
     string read(int page, int row, int col, Direction dir, int len);

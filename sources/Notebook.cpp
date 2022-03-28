@@ -15,7 +15,7 @@ const char DEL = '~';
 namespace ariel
 {
 
-    std::vector<char> new_line(100, EMPTY_SPACE);
+    std::vector<char> new_line(MAX_LINE_SIZE, EMPTY_SPACE);
 
     void Notebook::write(int page, int row, int col, Direction dir, string const &data)
     {
@@ -28,25 +28,28 @@ namespace ariel
         }
         Notebook::valid_write(data);
         string istr;
-        unsigned long i = 0;
+         int i = 0;
         if (dir == Direction::Horizontal)
         {
             istr = to_string(page) + "_" + to_string(row);
-            while (len--)
+            while (len != 0)
             {
-                if (data[i] == DEL)
+                if (data[(unsigned long)i] == DEL)
                 {
                     throw("can't write to place that already deleted..");
                 }
-                Notebook::note[istr].at((unsigned int)col++) = data[i];
+                Notebook::note[istr].at((unsigned int)col++) = data[(unsigned long)i];
+                i++;
+                len--;
             }
         }
         else
         {
-            while (len--)
+            while (len != 0)
             {
                 istr = to_string(page) + "_" + to_string(row++);
-                Notebook::note[istr].at((unsigned int)col) = data[i];
+                Notebook::note[istr].at((unsigned int)col) = data[(unsigned long)i];
+                len--;
             }
         }
     }
@@ -56,28 +59,33 @@ namespace ariel
         Notebook::ckeck_args(page, row, col, len, dir);
         string ans;
         string line;
+        int i = 0; 
         if (dir == Direction::Horizontal)
         {
             line = to_string(page) + "_" + to_string(row);
-            if (Notebook::note[line].size() == 0)
+            if (Notebook::note[line].empty())
             {
                 Notebook::note[line] = new_line;
             }
-            while (len--)
+            while (len != 0)
             {
-                ans += Notebook::note[line].at((unsigned int)col++);
+                ans += Notebook::note[line].at((unsigned int)(col + i));
+                i++;
+                len--;
             }
         }
         else
         {
-            while (len--)
+            while (len != 0)
             {
-                line = to_string(page) + "_" + to_string(row++);
-                if (Notebook::note[line].size() == 0)
+                line = to_string(page) + "_" + to_string(row + i);
+                if (Notebook::note[line].empty())
                 {
                     Notebook::note[line] = new_line;
                 }
                 ans += Notebook::note[line].at((unsigned int)col);
+                i++;
+                len--;
             }
         }
 
@@ -91,17 +99,19 @@ namespace ariel
         if (dir == Direction::Horizontal)
         {
             line = to_string(page) + "_" + to_string(row);
-            while (len--)
+            while (len != 0)
             {
                 Notebook::note[line].at((unsigned int)col++) = DEL;
+                len--;
             }
         }
         else
         {
             line = to_string(page) + "_" + to_string(row++);
-            while (len--)
+            while (len != 0)
             {
                 Notebook::note[line].at((unsigned int)col) = DEL;
+                len--;
             }
         }
     }
@@ -133,27 +143,23 @@ namespace ariel
      * */
     void Notebook::valid_write(string const &data)
     {
-        unsigned long i = 0;
         int len = data.length();
-        int wrong_chars = 32;
-        char tmp;
-        while (len--)
+        int upper = 32;
+        for (int i = 0; i <len ; i++)
         {
-            while (wrong_chars--)
+            for (int j = 0; j < upper; j++)
             {
-                tmp = wrong_chars;
-                if (data[i] == tmp)
+                char tmp = j;
+                if (data[(unsigned long)i] == tmp)
                 {
-                    cout << tmp << endl;
-                    throw invalid_argument("invalid char");
+            throw invalid_argument("wrong input");
                 }
             }
-            if (data[i] == 126 || data[i] == 127)
+            if (data[(unsigned long)i] == 126 || data[(unsigned long)i] == 127)
             {
-                throw invalid_argument("invalid char");
+            throw invalid_argument("wrong input");
             }
+
         }
     }
-    
-
 }
