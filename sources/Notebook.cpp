@@ -11,16 +11,21 @@ using namespace std;
 const int MAX_LINE_SIZE = 100;
 const char EMPTY_SPACE = '_';
 const char DEL = '~';
+const int low_bound = 32;
+const int up_bound = 125;
 
 namespace ariel
 {
-
+    // define new line:
     std::vector<char> new_line(MAX_LINE_SIZE, EMPTY_SPACE);
-
+    /*
+    write your text to the db
+    if the args or the data invalid - throw eror..
+    */
     void Notebook::write(int page, int row, int col, Direction dir, string const &data)
     {
         int len = data.length();
-        Notebook::ckeck_args(page, row, col, len, dir);
+        Notebook::check_args(page, row, col, len, dir);
         string get_str = read(page, row, col, dir, len);
         if (get_str != string(data.length(), EMPTY_SPACE))
         {
@@ -28,38 +33,37 @@ namespace ariel
         }
         Notebook::valid_write(data);
         string istr;
-         int i = 0;
         if (dir == Direction::Horizontal)
         {
             istr = to_string(page) + "_" + to_string(row);
-            while (len != 0)
+
+            for (int i = 0; i < len; i++)
             {
                 if (data[(unsigned long)i] == DEL)
                 {
                     throw("can't write to place that already deleted..");
                 }
                 Notebook::note[istr].at((unsigned int)col++) = data[(unsigned long)i];
-                i++;
-                len--;
             }
         }
-        else
+        else // dir == Direction::Vertical:
         {
-            while (len != 0)
+            for (int i = 0; i < len; i++)
             {
                 istr = to_string(page) + "_" + to_string(row++);
                 Notebook::note[istr].at((unsigned int)col) = data[(unsigned long)i];
-                len--;
             }
         }
     }
-
+    /*
+    read the string fron the db (if it exist)
+    in case the parameters wrong - throw eror
+    */
     string Notebook::read(int page, int row, int col, Direction dir, int len)
     {
-        Notebook::ckeck_args(page, row, col, len, dir);
+        Notebook::check_args(page, row, col, len, dir);
         string ans;
         string line;
-        int i = 0; 
         if (dir == Direction::Horizontal)
         {
             line = to_string(page) + "_" + to_string(row);
@@ -67,16 +71,14 @@ namespace ariel
             {
                 Notebook::note[line] = new_line;
             }
-            while (len != 0)
+            for (int i = 0; i < len; i++)
             {
                 ans += Notebook::note[line].at((unsigned int)(col + i));
-                i++;
-                len--;
             }
         }
-        else
+        else // dir == Direction::Vertical:
         {
-            while (len != 0)
+            for (int i = 0; i < len; i++)
             {
                 line = to_string(page) + "_" + to_string(row + i);
                 if (Notebook::note[line].empty())
@@ -84,34 +86,34 @@ namespace ariel
                     Notebook::note[line] = new_line;
                 }
                 ans += Notebook::note[line].at((unsigned int)col);
-                i++;
-                len--;
             }
         }
 
         return ans;
     }
-
+    /*
+    erase the data from the db (put ~ on the place that been deleted)
+    if the args invalid - throw eror..
+    */
     void Notebook::erase(int page, int row, int col, Direction dir, int len)
     {
-        Notebook::ckeck_args(page, row, col, len, dir);
+        Notebook::check_args(page, row, col, len, dir);
+        string tmp = read(page, row, col, dir, len); // call read to check if the place can delete..
         string line;
         if (dir == Direction::Horizontal)
         {
             line = to_string(page) + "_" + to_string(row);
-            while (len != 0)
+            for (int i = 0; i < len; i++)
             {
-                Notebook::note[line].at((unsigned int)col++) = DEL;
-                len--;
+                Notebook::note[line].at((unsigned int)(col + i)) = DEL;
             }
         }
-        else
+        else // dir == Direction::Vertical:
         {
-            line = to_string(page) + "_" + to_string(row++);
-            while (len != 0)
+            for (int i = 0; i < len; i++)
             {
+                line = to_string(page) + "_" + to_string(row + i);
                 Notebook::note[line].at((unsigned int)col) = DEL;
-                len--;
             }
         }
     }
@@ -124,42 +126,32 @@ namespace ariel
         }
     }
 
+    /**
+     * this function check if the data is valid
+     * if not - throw "invalid_argument"
+     * */
+    void Notebook::valid_write(string const &data)
+    {
+        for (int i = 0; i < data.length(); i++)
+        {
+           char tmp = data[(unsigned long)i];
+            if (tmp < low_bound || tmp > up_bound)
+            {
+                throw invalid_argument("unvalid args..");
+            }
+        }
+    }
+
     /*
     check if the args are valids
     if not - throw eror
     */
-    void Notebook::ckeck_args(int page, int row, int col, int len, Direction dir)
+    void Notebook::check_args(int page, int row, int col, int len, Direction dir)
     {
-        if ((page < 0 || row < 0 || col < 0) || (dir == Direction::Horizontal && len + col > MAX_LINE_SIZE))
+        if ((page < 0 || row < 0 || col < 0 || len < 0) || (dir == Direction::Horizontal && len + col > MAX_LINE_SIZE))
         {
             throw invalid_argument("seg fault");
         }
     }
 
-    /**
-     * this method check if we can write in the places that recuired-
-     * if there is data that not _ trow false
-     *
-     * */
-    void Notebook::valid_write(string const &data)
-    {
-        int len = data.length();
-        int upper = 32;
-        for (int i = 0; i <len ; i++)
-        {
-            for (int j = 0; j < upper; j++)
-            {
-                char tmp = j;
-                if (data[(unsigned long)i] == tmp)
-                {
-            throw invalid_argument("wrong input");
-                }
-            }
-            if (data[(unsigned long)i] == 126 || data[(unsigned long)i] == 127)
-            {
-            throw invalid_argument("wrong input");
-            }
-
-        }
-    }
 }
