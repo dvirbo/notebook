@@ -59,7 +59,7 @@ namespace ariel
     read the string fron the db (if it exist)
     in case the parameters wrong - throw eror
     */
-    string Notebook::read(int page, int row, int col, Direction dir, int len)
+    string Notebook::read(int page, int row, int col, Direction dir, int len) 
     {
         Notebook::check_args(page, row, col, len, dir);
         string ans;
